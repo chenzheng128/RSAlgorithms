@@ -1,6 +1,9 @@
 # encoding:utf-8
 import sys
 
+"""
+copy and change from social_reg.py
+"""
 
 sys.path.append("..")
 import numpy as np
@@ -30,7 +33,7 @@ class SocialReg(MF):
         super(SocialReg, self).init_model(k)
         from collections import defaultdict
         self.user_sim = SimMatrix()
-        print('constructing user-user similarity matrix...')
+        print('\n ### constructing user-user similarity matrix...')
 
         # self.user_sim = util.load_data('../data/sim/ft_cf_soreg08_cv1.pkl')
 
@@ -93,6 +96,9 @@ class SocialReg(MF):
 
 
 if __name__ == '__main__':
+
+    print("=== START TIMING"); from time import time , sleep; start_time = time()
+
     # srg = SocialReg()
     # srg.train_model(0)
     # coldrmse = srg.predict_model_cold_users()
@@ -102,16 +108,33 @@ if __name__ == '__main__':
     rmses = []
     maes = []
     tcsr = SocialReg()
+    model = tcsr
     # print(bmf.rg.trainSet_u[1])
-    for i in range(tcsr.config.k_fold_num):
+    
+    ### 加速调试调整
+
+    # 仅执行 5 Iteration, 便于 debug 或调试
+    # model.config.maxIter = 5
+
+    # 仅执行 1 fold， 加快实验调试进度 
+    orig_fold = tcsr.config.k_fold_num # 5
+    new_fold = 1
+    new_fold = orig_fold # 恢复默认 fold 设置
+
+    for i in range(new_fold):
         print('the %dth cross validation training' % i)
         tcsr.train_model(i)
         rmse, mae = tcsr.predict_model()
         rmses.append(rmse)
         maes.append(mae)
-    rmse_avg = sum(rmses) / 5
-    mae_avg = sum(maes) / 5
+    rmse_avg = sum(rmses) / new_fold
+    mae_avg = sum(maes) / new_fold
+
     print("the rmses are %s" % rmses)
     print("the maes are %s" % maes)
     print("the average of rmses is %s " % rmse_avg)
     print("the average of maes is %s " % mae_avg)
+
+    ## TIMING END; 
+    end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )
+
