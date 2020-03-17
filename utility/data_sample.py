@@ -9,7 +9,7 @@ Author: zhchen
 # cd data
 # cp ft_ratings.txt ft_ratings.txt.orig
 # cp ft_trust.txt ft_trust.txt.orig
-!!! !!!
+!!! 数据必须处理为备份为.orig文件才可正常运行!!!
 
 读取 config 中的数据集文件， 并 sample 成不同的大小，便于 DEBUG 测试程序
 
