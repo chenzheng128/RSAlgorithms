@@ -1,7 +1,8 @@
 # encoding:utf-8
 import sys
+sys.path.append("/home/songxuan/python/RSA/")
 
-sys.path.append("..")
+import time as t
 import numpy as np
 from mf import MF
 from reader.trust import TrustGetter
@@ -74,6 +75,7 @@ class SocialRec(MF):
 if __name__ == '__main__':
     rmses = []
     maes = []
+    bt = t.time()
     tcsr = SocialRec()
     # print(bmf.rg.trainSet_u[1])
     for i in range(tcsr.config.k_fold_num):
@@ -84,7 +86,10 @@ if __name__ == '__main__':
         maes.append(mae)
     rmse_avg = sum(rmses) / 5
     mae_avg = sum(maes) / 5
+    et = t.time()
+    rt = et-bt
     print("the rmses are %s" % rmses)
     print("the maes are %s" % maes)
     print("the average of rmses is %s " % rmse_avg)
     print("the average of maes is %s " % mae_avg)
+    print("running time is %s" % rt)

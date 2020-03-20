@@ -1,8 +1,9 @@
 # encoding:utf-8
 import sys
 
-sys.path.append("..")
+sys.path.append("/home/songxuan/python/RSA/")
 import numpy as np
+import time as t
 from mf import MF
 from reader.trust import TrustGetter
 from utility.matrix import SimMatrix
@@ -100,6 +101,7 @@ if __name__ == '__main__':
 
     rmses = []
     maes = []
+    bt = t.time()   
     tcsr = SocialReg()
     # print(bmf.rg.trainSet_u[1])
     for i in range(tcsr.config.k_fold_num):
@@ -110,7 +112,10 @@ if __name__ == '__main__':
         maes.append(mae)
     rmse_avg = sum(rmses) / 5
     mae_avg = sum(maes) / 5
+    et = t.time()
+    rt = et-bt
     print("the rmses are %s" % rmses)
     print("the maes are %s" % maes)
     print("the average of rmses is %s " % rmse_avg)
     print("the average of maes is %s " % mae_avg)
+    print("the runing time is %s" % rt)
