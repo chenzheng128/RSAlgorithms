@@ -1,6 +1,9 @@
 # encoding:utf-8
 import sys
 
+"""
+基础 baseline，等同于 SVD 
+"""
 sys.path.append("..")
 
 from prettyprinter import cpprint, set_default_style

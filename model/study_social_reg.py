@@ -1,4 +1,9 @@
 # encoding:utf-8
+
+"""
+ PMF + Neigbor * SocialBias  
+"""
+
 import sys
 
 sys.path.append("..")

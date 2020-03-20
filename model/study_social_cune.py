@@ -1,4 +1,8 @@
 # encoding:utf-8
+"""
+PMF + hiddenEmbedSocial
+"""
+
 import sys
 
 sys.path.append("..")
@@ -71,6 +75,9 @@ class CUNE(MF):
         # cpprint(self.CUNet)
         pass
     def deep_walk(self):
+        """
+        在 图 中 深度 walk
+        """
         print('Generating random deep walks...')
         self.walks = []
         self.visited = defaultdict(dict)
@@ -93,12 +100,17 @@ class CUNE(MF):
                 self.walks.append(path)
         # shuffle(self.walks)
         # cpprint(self.walks)
+
+        # 将 walk 数据 进行 图嵌入
         print('Generating user embedding...')
         self.model = w2v.Word2Vec(self.walks, size=self.config.walkDim, window=5, min_count=0, iter=3)
         print('User embedding generated.')
         pass
 
     def compute_social_sim(self):
+        """
+        计算社交相似度 
+        """
         print('Constructing similarity matrix...')
         # self.W = np.zeros((self.rg.get_train_size()[0], self.config.walkDim))
         self.topKSim = defaultdict(dict)
