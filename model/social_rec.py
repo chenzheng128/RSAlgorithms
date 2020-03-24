@@ -73,23 +73,34 @@ class SocialRec(MF):
 
 
 if __name__ == '__main__':
+    # 计时 、加速测试 、数据集打印 代码
+    print("=== START TIMING"); from time import time , sleep; start_time = time()
+
     rmses = []
     maes = []
-    bt = t.time()
     tcsr = SocialRec()
+    config = tcsr.config
+    fold = config.k_fold_num
+    
+    # 加速测试
+    # fold = 1 
+    # config.lr = 0.02
+    # config.threshold = 1000 # delta_loss 低于此值时结束
+
     # print(bmf.rg.trainSet_u[1])
-    for i in range(tcsr.config.k_fold_num):
+    for i in range(fold):
         print('the %dth cross validation training' % i)
         tcsr.train_model(i)
         rmse, mae = tcsr.predict_model()
         rmses.append(rmse)
         maes.append(mae)
-    rmse_avg = sum(rmses) / 5
-    mae_avg = sum(maes) / 5
-    et = t.time()
-    rt = et-bt
-    print("the rmses are %s" % rmses)
-    print("the maes are %s" % maes)
-    print("the average of rmses is %s " % rmse_avg)
-    print("the average of maes is %s " % mae_avg)
-    print("running time is %s" % rt)
+    rmse_avg = sum(rmses) / fold
+    mae_avg = sum(maes) / fold
+    print("[%s] the rmses are %s" % (config.dataset_name, rmses))
+    print("[%s] the maes are %s" % (config.dataset_name, rmses))
+    print("the average of rmses in [%s] is %s " % (config.dataset_name, rmse_avg))
+    print("the average of maes in  [%s] is %s " % (config.dataset_name, mae_avg))
+    
+
+    ## TIMING END; 
+    end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )
