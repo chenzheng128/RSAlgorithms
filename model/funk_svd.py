@@ -41,14 +41,26 @@ class FunkSVD(MF):
 if __name__ == '__main__':
 
     rmses = []
+    maes = []
+
     bmf = FunkSVD()
+    config = bmf.config
+    fold = config.k_fold_num
+
+    # 加速与条参考 
+    fold = 1
+    # config.threshold = 15
     # print(bmf.rg.trainSet_u[1])
-    for i in range(bmf.config.k_fold_num):
+    for i in range(fold):
         bmf.train_model(i)
         rmse, mae = bmf.predict_model()
         rmses.append(rmse)
-    print(rmses)
-    # bmf.config.k_current = 1
-    # print(bmf.rg.trainSet_u[1])
-    # bmf.train_model()
-    # bmf.predict_model()
+        print("current best rmse is %0.5f, mae is %0.5f" % (rmse, mae))
+        rmses.append(rmse)
+        maes.append(mae)
+    rmse_avg = sum(rmses) / fold
+    mae_avg = sum(maes) / fold
+    print("[%s] the rmses are %s" % (config.dataset_name, rmses))
+    print("[%s] the maes are %s" % (config.dataset_name, rmses))
+    print("the average of rmses in [%s] is %s " % (config.dataset_name, rmse_avg))
+    print("the average of maes in  [%s] is %s " % (config.dataset_name, mae_avg))

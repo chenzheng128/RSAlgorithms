@@ -10,6 +10,7 @@ from metrics.metric import Metric
 from utility.tools import denormalize,sigmoid
 from reader.rating import RatingGetter
 from configx.configx import ConfigX
+from configx.configc import ConfigCUC
 
 
 class MF(object):
@@ -19,10 +20,15 @@ class MF(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, fixseed = True):
         super(MF, self).__init__()
         self.config = ConfigX()
+        self.configc = ConfigCUC()
         cpprint(self.config.__dict__)  #print the configuration
+        
+        if fixseed:
+            np.random.seed(seed=self.config.random_state) # 固定随机种子
+
 
         # self.rg = RatingGetter()  # loading raing data
         # self.init_model()
@@ -32,8 +38,22 @@ class MF(object):
 
     def init_model(self,k):
         self.read_data(k)
+        # print("mf.py TODO: 打印真正的 rating 数量 =  ", )
+        print("[%s] %s fold_round = %sth , user * item (m * n) = %s * %s" % ( 
+            self.config.dataset_name,
+            self.__class__, 
+            k, # fold_num
+            self.rg.get_train_size()[0],
+            self.rg.get_train_size()[1]))
+        print("[%s] %s self.config.factor = %s lamdaP = %s, lamdaQ = %s " % (
+            self.config.dataset_name,
+            self.__class__,  
+            self.config.factor,
+            self.config.lambdaP, self.config.lambdaQ))
+        # randome init size m * d 
         self.P = np.random.rand(self.rg.get_train_size()[0], self.config.factor) / (
         self.config.factor ** 0.5)  # latent user matrix
+        # randome init size n * d
         self.Q = np.random.rand(self.rg.get_train_size()[1], self.config.factor) / (
         self.config.factor ** 0.5)  # latent item matrix
         self.loss, self.lastLoss = 0.0, 0.0
@@ -119,8 +139,8 @@ class MF(object):
             self.lastRmse = rmse
             self.lastMae = mae
 
-        print('%s iteration %d: loss = %.4f, delta_loss = %.5f learning_Rate = %.5f rmse=%.5f mae=%.5f' % \
-              (self.__class__, iter, self.loss, deltaLoss, self.config.lr, rmse, mae))
+        print('[%s] %s iteration %d: loss = %.4f, delta_loss = %.5f learning_Rate = %.5f rmse=%.5f mae=%.5f' % \
+                  (self.config.dataset_name, self.__class__,  iter, self.loss, deltaLoss, self.config.lr, rmse, mae))
 
         # check if converged
         cond = abs(deltaLoss) < self.config.threshold

@@ -73,7 +73,7 @@ class SocialRec(MF):
 
 
 if __name__ == '__main__':
-    # 计时 、加速测试 、数据集打印 代码
+    # social_rec 补充计时 、加速测试 、数据集打印 代码
     print("=== START TIMING"); from time import time , sleep; start_time = time()
 
     rmses = []
@@ -83,9 +83,8 @@ if __name__ == '__main__':
     fold = config.k_fold_num
     
     # 加速测试
-    # fold = 1 
-    # config.lr = 0.02
-    # config.threshold = 1000 # delta_loss 低于此值时结束
+    fold = 1
+    config.threshold = 100 # delta_loss 低于此值时结束
 
     # print(bmf.rg.trainSet_u[1])
     for i in range(fold):
@@ -101,6 +100,5 @@ if __name__ == '__main__':
     print("the average of rmses in [%s] is %s " % (config.dataset_name, rmse_avg))
     print("the average of maes in  [%s] is %s " % (config.dataset_name, mae_avg))
     
-
     ## TIMING END; 
     end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )

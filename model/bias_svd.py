@@ -62,21 +62,33 @@ class BiasSVD(MF):
 
 
 if __name__ == '__main__':
+    # 补充计时 、加速测试 、数据集打印 代码
+    print("=== START TIMING"); from time import time , sleep; start_time = time()
 
     rmses = []
     maes = []
     bmf = BiasSVD()
     bmf.config.k_fold_num = 1
+    config = bmf.config
+
+    # 加速测试
+    fold = 1 
+    config.threshold = 50
+
     # print(bmf.rg.trainSet_u[1])
-    for i in range(bmf.config.k_fold_num):
+    for i in range(fold):
         bmf.train_model(i)
         rmse, mae = bmf.predict_model()
         print("current best rmse is %0.5f, mae is %0.5f" % (rmse, mae))
         rmses.append(rmse)
         maes.append(mae)
-    rmse_avg = sum(rmses) / 5
-    mae_avg = sum(maes) / 5
-    print("the rmses are %s" % rmses)
-    print("the maes are %s" % maes)
-    print("the average of rmses is %s " % rmse_avg)
-    print("the average of maes is %s " % mae_avg)
+    rmse_avg = sum(rmses) / fold
+    mae_avg = sum(maes) / fold
+    print("[%s] the rmses are %s" % (config.dataset_name, rmses))
+    print("[%s] the maes are %s" % (config.dataset_name, rmses))
+    print("the average of rmses in [%s] is %s " % (config.dataset_name, rmse_avg))
+    print("the average of maes in  [%s] is %s " % (config.dataset_name, mae_avg))
+
+    ## TIMING END; 
+    end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )
+    

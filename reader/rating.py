@@ -17,6 +17,9 @@ class RatingGetter(object):
     """
 
     def __init__(self, k):
+        """
+        k - fold number 运行 第几个 fold
+        """
         super(RatingGetter, self).__init__()
         self.config = ConfigX()
         self.k_current = k
@@ -95,7 +98,7 @@ class RatingGetter(object):
         k = self.k_current
         data_path = self.config.rating_cv_path + self.config.dataset_name + "-" + str(k) + ".csv"
         if not os.path.isfile(data_path):
-            print("the format of ratings data is wrong!")
+            print("the format of ratings data %s is missing" % data_path)
             sys.exit()
         with open(data_path, 'r') as f:
             for index, line in enumerate(f):
@@ -189,6 +192,10 @@ class RatingGetter(object):
 
     def user_rated_items(self, u):
         return self.trainSet_u[u].keys()
+
+    def print_data_stats(self):
+        print("%s.py user = %s item = %s " % (model.__class__.__name__,  
+            self.trainSet))
 
 
 if __name__ == '__main__':

@@ -42,6 +42,7 @@ def split_5_folds(configx):
         items = ratings[user, :].indices
         rating_vals = ratings[user, :].data
         index_list = [i for i in range(K)] * int(len(items) / float(K) + 1)
+        np.random.seed(seed=configx.random_state) # 固定随机种子
         np.random.shuffle(index_list)
         index_list = np.array(index_list)
 

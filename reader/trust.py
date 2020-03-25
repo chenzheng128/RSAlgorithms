@@ -22,6 +22,7 @@ class TrustGetter(object):
 
         self.user = {}  # used to store the order of users
         self.relations = self.get_relations()
+        # followees ：你关注的人，相当于微博中的“关注”； followers：关注你的人，相当于微博中的“粉丝
         self.followees = defaultdict(dict)
         self.followers = {}
         self.matrix_User = {}
@@ -53,7 +54,7 @@ class TrustGetter(object):
 
     def get_relations(self):
         if not os.path.isfile(self.config.trust_path):
-            print("the format of trust data is wrong")
+            print("the format of trust data %s is missing" % self.config.trust_path)
             sys.exit()
         with open(self.config.trust_path, 'r') as f:
             for index, line in enumerate(f):

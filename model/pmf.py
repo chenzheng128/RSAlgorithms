@@ -10,26 +10,25 @@ from mf import MF
 from utility import tools
 
 
-class FunkSVDwithR(MF):
+class PMF(MF):
     """
-    docstring for FunkSVDwithR
+    docstring for PMF
+    原始名称 FunkSVDwithR 
     implement the FunkSVD with regularization
     http://sifter.org/~simon/journal/20061211.html
     """
 
     def __init__(self):  # 
-        super(FunkSVDwithR, self).__init__()
-        self.config.lambdaP = 0.001  # 
-        self.config.lambdaQ = 0.001
+        super(PMF, self).__init__()
         self.config.gamma = 0.9  # Momentum
         self.config.isEarlyStopping = True
         # self.init_model()
 
     # def init_model(self):
-    # 	super(FunkSVDwithR, self).init_model()
+    # 	super(PMF, self).init_model()
 
     def train_model(self, k):
-        super(FunkSVDwithR, self).train_model(k)
+        super(PMF, self).train_model(k)
         iteration = 0
         p_delta, q_delta = dict(), dict()
         while iteration < self.config.maxIter:
@@ -50,6 +49,7 @@ class FunkSVDwithR(MF):
                 if not i in q_delta:
                     q_delta[i] = np.zeros(self.config.factor)
 
+                # 相对于 funk_svd 增加了 lamda 避免过拟合
                 p_delta[u] = self.config.lr * (-error * q + self.config.lambdaP * p) + self.config.gamma * p_delta[u]
                 q_delta[i] = self.config.lr * (-error * p + self.config.lambdaQ * q) + self.config.gamma * q_delta[i]
                 self.P[u] -= p_delta[u]
@@ -69,19 +69,32 @@ if __name__ == '__main__':
     # print('cold start user rmse is :' + str(coldrmse))
     # bmf.show_rmse()
 
+    # 补充计时 、加速测试 、数据集打印 代码
+    print("=== START TIMING"); from time import time , sleep; start_time = time()
+
     rmses = []
     maes = []
-    bmf = FunkSVDwithR()
+    bmf = PMF()
+    config = bmf.config
+    fold = config.k_fold_num # 原有 fold num 配置
+
+    # 加速测试
+    fold = 1 
+
     # print(bmf.rg.trainSet_u[1])
-    for i in range(bmf.config.k_fold_num):
+    for i in range(fold):
         bmf.train_model(i)
         rmse, mae = bmf.predict_model()
         print("current best rmse is %0.5f, mae is %0.5f" % (rmse, mae))
         rmses.append(rmse)
         maes.append(mae)
-    rmse_avg = sum(rmses) / 5
-    mae_avg = sum(maes) / 5
-    print("the rmses are %s" % rmses)
-    print("the maes are %s" % maes)
-    print("the average of rmses is %s " % rmse_avg)
-    print("the average of maes is %s " % mae_avg)
+    rmse_avg = sum(rmses) / fold
+    mae_avg = sum(maes) / fold
+    print("[%s] the rmses are %s" % (config.dataset_name, rmses))
+    print("[%s] the maes are %s" % (config.dataset_name, maes))
+    print("the average of rmses in [%s] is %s " % (config.dataset_name, rmse_avg))
+    print("the average of maes in  [%s] is %s " % (config.dataset_name, mae_avg))
+
+    ## TIMING END; 
+    end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )
+    
