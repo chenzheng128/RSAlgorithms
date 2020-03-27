@@ -14,7 +14,11 @@ Split ratings into five folds
 
 
 def split_5_folds(configx):
+    """
+    进行 fold cv 分割
+    """
     K = configx.k_fold_num
+    print ("分割成 %s fold ..." % K)
     names = ['user_id', 'item_id', 'rating']
     if not os.path.isfile(configx.rating_path):
         print("the format of rating data is wrong")

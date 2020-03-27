@@ -11,6 +11,7 @@ from utility.tools import denormalize,sigmoid
 from reader.rating import RatingGetter
 from configx.configx import ConfigX
 from configx.configc import ConfigCUC
+from utility.cuc_stat import print_data_file_stats
 
 
 class MF(object):
@@ -25,7 +26,10 @@ class MF(object):
         self.config = ConfigX()
         self.configc = ConfigCUC()
         cpprint(self.config.__dict__)  #print the configuration
-        
+        # 打印数据统计
+        print_data_file_stats(self.config.rating_path)
+        print_data_file_stats(self.config.trust_path)
+
         if fixseed:
             np.random.seed(seed=self.config.random_state) # 固定随机种子
 
@@ -61,6 +65,10 @@ class MF(object):
         pass
 
     def read_data(self,k):
+        # cv 数据 统计
+        cv_data_path = self.config.rating_cv_path + self.config.dataset_name + "-" + str(k) + ".csv"
+        print_data_file_stats(cv_data_path)
+        # 初始化 rg
         self.rg = RatingGetter(k)
         pass
 
