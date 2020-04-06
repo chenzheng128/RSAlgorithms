@@ -177,3 +177,8 @@ def euclidean_sp(x1, x2):
         return 1.0 / total
     except ZeroDivisionError:
         return 0
+
+def jaccard_sim(a, b):
+    unions = len(set(a).union(set(b)))
+    intersections = len(set(a).intersection(set(b)))
+    return 1. * intersections / unions

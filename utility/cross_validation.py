@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 from configx.configx import ConfigX
+from tqdm import tqdm
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Split ratings into five folds
@@ -42,7 +43,7 @@ def split_5_folds(configx):
         vals.append(np.zeros(size_of_bucket))
         nonzeros.append(0)
 
-    for i, user in enumerate(users):
+    for i, user in tqdm(enumerate(users)):
         items = ratings[user, :].indices
         rating_vals = ratings[user, :].data
         index_list = [i for i in range(K)] * int(len(items) / float(K) + 1)
@@ -74,7 +75,7 @@ def split_5_folds(configx):
         bucket_df = pd.DataFrame({'user': row[:nonzero], 'item': col[:nonzero], 'rating': val[:nonzero]},
                                  columns=['user', 'item', 'rating'])
         bucket_df.to_csv("../data/cv/%s-%d.csv" % (configx.dataset_name, k), sep=configx.sep, header=False, index=False)
-        print("%s -fold%d data generated finished!" % (configx.dataset_name, k))
+        print("%s -fold%d data generated finished! (size = %s) " % (configx.dataset_name, k, len(bucket_df)))
 
     print("All Data Generated Done!")
 

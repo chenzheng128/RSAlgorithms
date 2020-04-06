@@ -13,7 +13,6 @@ from configx.configx import ConfigX
 from configx.configc import ConfigCUC
 from utility.cuc_stat import print_data_file_stats
 
-
 class MF(object):
     """
     docstring for MF
@@ -32,7 +31,6 @@ class MF(object):
 
         if fixseed:
             np.random.seed(seed=self.config.random_state) # 固定随机种子
-
 
         # self.rg = RatingGetter()  # loading raing data
         # self.init_model()
@@ -55,9 +53,11 @@ class MF(object):
             self.config.factor,
             self.config.lambdaP, self.config.lambdaQ))
         # randome init size m * d 
+        np.random.seed(seed=self.config.random_state) # 固定随机种子
         self.P = np.random.rand(self.rg.get_train_size()[0], self.config.factor) / (
         self.config.factor ** 0.5)  # latent user matrix
         # randome init size n * d
+        np.random.seed(seed=self.config.random_state) # 固定随机种子
         self.Q = np.random.rand(self.rg.get_train_size()[1], self.config.factor) / (
         self.config.factor ** 0.5)  # latent item matrix
         self.loss, self.lastLoss = 0.0, 0.0
@@ -65,6 +65,11 @@ class MF(object):
         pass
 
     def read_data(self,k):
+        print("[%s] %s starting ... fold_round = %sth" % ( 
+            self.config.dataset_name,
+            self.__class__, 
+            k, # fold_num
+            ))
         # cv 数据 统计
         cv_data_path = self.config.rating_cv_path + self.config.dataset_name + "-" + str(k) + ".csv"
         print_data_file_stats(cv_data_path)

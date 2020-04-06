@@ -86,7 +86,7 @@ class RatingGetter(object):
                 data_path = self.config.rating_cv_path + self.config.dataset_name + "-" + str(i) + ".csv"
                 # if not os.path.exists
                 if not os.path.isfile(data_path):
-                    print("the format of ratings data is wrong!")
+                    print("the format of ratings data %s is wrong! 请先执行 cross_validate.py " % data_path)
                     sys.exit()
                 with open(data_path, 'r') as f:
                     for index, line in enumerate(f):
@@ -98,7 +98,7 @@ class RatingGetter(object):
         k = self.k_current
         data_path = self.config.rating_cv_path + self.config.dataset_name + "-" + str(k) + ".csv"
         if not os.path.isfile(data_path):
-            print("the format of ratings data %s is missing" % data_path)
+            print("the format of ratings data %s is missing 请先执行 cross_validate.py" % data_path)
             sys.exit()
         with open(data_path, 'r') as f:
             for index, line in enumerate(f):

@@ -6,7 +6,7 @@ from prettyprinter import cpprint
 from mf import MF
 from utility.matrix import SimMatrix
 from utility.similarity import cosine_sp, pearson_sp
-
+from tqdm import tqdm
 
 class ItemCF(MF):
     """
@@ -25,7 +25,7 @@ class ItemCF(MF):
         super(ItemCF, self).init_model(k)
         self.item_sim = SimMatrix()
 
-        for i_test in self.rg.testSet_i:
+        for i_test in tqdm(self.rg.testSet_i):
             for i_train in self.rg.item:
                 if i_test != i_train:
                     if self.item_sim.contains(i_test, i_train):

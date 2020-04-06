@@ -77,9 +77,10 @@ if __name__ == '__main__':
     bmf = PMF()
     config = bmf.config
     fold = config.k_fold_num # 原有 fold num 配置
+    config.threshold =  6 # delta_loss 低于此值时结束
 
     # 加速测试
-    fold = 1 
+    fold = 1
 
     # print(bmf.rg.trainSet_u[1])
     for i in range(fold):

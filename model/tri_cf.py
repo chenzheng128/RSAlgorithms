@@ -34,7 +34,9 @@ class TriCFBias(MF):
 
     def init_model(self, k):
         super(TriCFBias, self).init_model(k)
+        np.random.seed(seed=self.config.random_state)
         self.Bu = np.random.rand(self.rg.get_train_size()[0])  # bias value of user
+        np.random.seed(seed=self.config.random_state) # 固定随机种子
         self.Bi = np.random.rand(self.rg.get_train_size()[1])  # bais value of item
         self.build_user_item_sim_CF()
 
@@ -61,6 +63,7 @@ class TriCFBias(MF):
             os.makedirs('../data/sim')
             print('../data/sim folder has been established.')
 
+        print("save user sims size = %s" % ( self.user_sim.size()))
         util.save_data(self.user_sim, '../data/sim/ft_08_uu_tricf_cv0.pkl')
 
         # compute the k neighbors of user
@@ -90,6 +93,7 @@ class TriCFBias(MF):
                     sim = pearson_sp(self.rg.get_col(i1), self.rg.get_col(i2))
                     sim = round(sim, 5)
                     self.item_sim.set(i1, i2, sim)
+        print("save item sims size = %s" % (self.item_sim.size()))
         util.save_data(self.item_sim, '../data/sim/ft_08_ii_tricf_cv0.pkl')
 
         # compute the k neighbors of item
@@ -182,21 +186,60 @@ class TriCFBias(MF):
         rmse = Metric.RMSE(res)
         return rmse
 
+def print_hyper_params(model):
+    """
+    打印本模型的 超参
+    """
+    print("%s.py HYPER_PARAMS lamdaB = %s, lamdaU = %s lamdaI = %s " % (model.__class__.__name__,  
+            model.config.lambdaB, config.lambdaU, config.lambdaI))
+    print("%s.py HYPER_PARAMS config.factor = %s lamdaP = %s, lamdaQ = %s " % (model.__class__.__name__,  
+            model.config.factor, model.config.lambdaP, model.config.lambdaQ))
+    print("%s.py HYPER_PARAMS item_near_num = %s, item_near_num = %s" % (model.__class__.__name__,  
+            model.config.item_near_num, model.config.user_near_num))
+    # print ("%s.py HYPER_PARAMS user_near_num = %s item_near_num = %s " % (model.__class__.__name__,  
+    #         model.user_near_num,  model.item_near_num))
+
 
 if __name__ == '__main__':
+    print("=== START TIMING"); from time import time , sleep; start_time = time()
+
     rmses = []
     maes = []
     tcsr = TriCFBias()
+    model = tcsr
+
+    config = model.config
+
+    # 设置调试数据集
+    # config.dataset_name = "db"
+
+    fold = 5 
+    # 加速调试
+    fold = 1 
+
+    print("### 参数影响性分析： 超参 调整 ")
+    config.threshold = 1 # 判断收敛 
+    # config.maxIter = 200
+    config.lambdaP = 0.02
+    config.lambdaQ = 0.002 # 正则化项目 
+    # # model.item_near_num = usernum # item 近邻
+    # # model.user_near_num = itemnum # user 近邻
+    print_hyper_params(model) # 打印 超参 信息
+
     # print(bmf.rg.trainSet_u[1])
-    for i in range(tcsr.config.k_fold_num):
+    for i in range(fold):
         print('the %dth cross validation training' % i)
         tcsr.train_model(i)
         rmse, mae = tcsr.predict_model()
         rmses.append(rmse)
         maes.append(mae)
-    rmse_avg = sum(rmses) / 5
-    mae_avg = sum(maes) / 5
-    print("the rmses are %s" % rmses)
-    print("the maes are %s" % maes)
-    print("the average of rmses is %s " % rmse_avg)
-    print("the average of maes is %s " % mae_avg)
+    
+    print_hyper_params(model)
+    rmse_avg = sum(rmses) / fold
+    mae_avg = sum(maes) / fold
+
+    print("the average of rmses in %s is %s " % (config.dataset_name, rmse_avg))
+    print("the average of maes in %s is %s " % (config.dataset_name, mae_avg))
+
+    ## TIMING END; 
+    end_time = time(); print("=== total run minutes: " , (end_time - start_time) / 60 )

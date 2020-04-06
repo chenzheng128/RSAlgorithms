@@ -9,8 +9,7 @@ from collections import defaultdict
 from utility.matrix import SimMatrix
 from utility.similarity import pearson_sp
 from utility import util
-from utility.sim.movielens import SimBase
-from utility.sim.douban_movie import SimDoubanMovie
+from utility.sim.sim_base import SimBase
 
 class CUCMEMF(MF):
     """
@@ -72,6 +71,7 @@ class CUCMEMF(MF):
             load_save_sim=self.load_save_sim
             )
         self.sim_model = sim_model
+        self.mg = sim_model.mg
 
     def train_model(self, k):
         super(CUCMEMF, self).train_model(k) # 此时会 加载 init_mode()
@@ -111,7 +111,8 @@ class CUCMEMF(MF):
                     near_item, sim_value = sitem, matchItems[sitem]
                     if sim_value != 0.0:
                         ss += sim_value
-                    qn = self.Q[self.rg.item[near_item]]
+                    if near_item in self.rg.item: # mg 和 rg 有些 key 不完全医治，这里加上判断 key 是否存在
+                        qn = self.Q[self.rg.item[near_item]]
                     i_near_sum += sim_value * (qn - q)
                     i_near_total += sim_value * ((qn - q).dot(qn - q))
                 if ss != 0.0:
@@ -173,10 +174,16 @@ if __name__ == '__main__':
     # 2 个 邻居 超参定义
     usernum=50
     itemnum=50
-    # 第一次运行时应执行此句，生成可加载的缓存
-    # model = CUCMEMF(user_near_num=usernum, item_near_num=itemnum)
-    # 第二次运行，在运行上面语句 1 次后，即可加载缓存调试, 加载已经保存好的 sim 数据
-    model = CUCMEMF(user_near_num=usernum, item_near_num=itemnum, load_save_sim=True)
+
+    first_fun = True 
+    # first_fun = False # 如需加快测试，打开此行注释即可
+    if first_fun:
+        # 第一次运行时应执行此句，生成可加载的缓存
+        model = CUCMEMF(user_near_num=usernum, item_near_num=itemnum)
+    else:
+        # 第二次运行，在运行上面语句 1 次后，即可加载缓存调试, 加载已经保存好的 sim 数据
+        model = CUCMEMF(user_near_num=usernum, item_near_num=itemnum, load_save_sim=True)
+    
     config = model.config
 
     # 设置调试数据集

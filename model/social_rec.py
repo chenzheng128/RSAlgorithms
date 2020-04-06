@@ -84,7 +84,8 @@ if __name__ == '__main__':
     
     # 加速测试
     fold = 1
-    config.threshold = 100 # delta_loss 低于此值时结束
+    config.lambdaP = config.lambdaQ = 0.01
+    config.threshold = 1 # delta_loss 低于此值时结束
 
     # print(bmf.rg.trainSet_u[1])
     for i in range(fold):
