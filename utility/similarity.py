@@ -4,7 +4,7 @@ import sys
 sys.path.append("..")
 import numpy as np
 from math import sqrt
-from utility.tools import sigmoid_2
+# from utility.tools import sigmoid_2
 
 
 # x1,x2 is the form of np.array.
@@ -182,3 +182,89 @@ def jaccard_sim(a, b):
     unions = len(set(a).union(set(b)))
     intersections = len(set(a).intersection(set(b)))
     return 1. * intersections / unions
+
+# train是一个字典套字典的格式
+# 形如：user:{item:rating}
+# inverse_train是一个字典套字典的格式
+# 形如：item:{user:rating}
+def ips(train, inverse_train):
+    # 存储项目间的相似度
+    sim = {}
+    for i, _ in inverse_train.items():
+        for j, _ in inverse_train.items():
+            if i == j: continue
+            dist = getPearson(i, j, inverse_train)
+            if i not in sim:
+                sim[i] = {j : 0.0}
+            sim[i][j] = dist
+    sim2 = {}
+    num = {}
+    for user, items in train.items():
+        for u,_ in items.items():
+            if u not in num:
+                num[u] = 0
+            num[u] += 1
+            if u not in sim2:
+                sim2[u] = {}
+            for v,_ in items.items():
+                if v == u: continue
+                if v not in sim2[u]:
+                    sim2[u][v] = 0
+                sim2[u][v] += 1 / math.log(1 + len(items))
+    for u in sim2:
+        for v in sim2[u]:
+            sim2[u][v] /= math.sqrt(num[u] * num[v])
+    for item1, items in sim.items():
+        for item2, value in items.items():
+            if item1 not in sim2: continue
+            if item2 not in sim2[item1]: continue
+            sim[item1][item2] = value * sim2[item1][item2]
+            # if sim[item1][item2] > 0 :
+            #     print()
+    return sim
+
+# 计算向量i和j的皮尔逊相似度
+def getPearson(i, j, inverse_train):
+    p, q = formatuserDict(i, j, inverse_train)
+    #只计算两者共同有的
+    same = 0
+    for i in p:
+        if i in q:
+            same += 1
+
+    n = same
+    # 分别求p，q的和
+    sumx = sum([p[i] for i in range(n)])
+    sumy = sum([q[i] for i in range(n)])
+    # 分别求出p，q的平方和
+    sumxsq = sum([p[i] ** 2 for i in range(n)])
+    sumysq = sum([q[i] ** 2 for i in range(n)])
+    # 求出p，q的乘积和
+    sumxy = sum([p[i] * q[i] for i in range(n)])
+    # print sumxy
+    # 求出pearson相关系数
+    if n == 0 : return 0
+    up = sumxy - sumx * sumy / n
+    down = ((sumxsq - pow(sumxsq, 2) / n) * (sumysq - pow(sumysq, 2)/n)) ** .5
+    #若down为零则不能计算，return 0
+    if down == 0 :return 0
+    r = up / down
+    r, _ = pearsonr(p, q)
+    return r
+
+# 得到具体代表item的i和j的ratings向量
+def formatuserDict(i, j, inverse_train):
+    items = {}
+    for user, rating in inverse_train[i].items():
+        items[user] = [rating, 0]
+    for user, rating in inverse_train[j].items():
+        if(user not in items):
+            items[user] = [0, rating]
+        else:
+            items[user][1] = rating
+    p, q = [], []
+    for _, value in items.items():
+        p.append(value[0])
+        q.append(value[1])
+    # return items
+    return p, q
